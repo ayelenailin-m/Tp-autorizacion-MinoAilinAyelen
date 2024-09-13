@@ -27,6 +27,24 @@ export const todosPage = () => {
     window.location.pathname = "/home";
   });
 
+  const btnCreate = document.createElement("button");
+
+  btnCreate.classList.add(
+    "bg-green-500",
+    "text-white",
+    "p-2",
+    "rounded",
+    "hover:bg-green-600",
+    "mb-4"
+  );
+
+  btnCreate.textContent = "Crear";
+
+  btnCreate.addEventListener("click", () => {
+    console.log( "clikearon en crear xd");
+    // Logica para crear despues
+  });
+
   const title = document.createElement("h1");
 
   title.classList.add("text-3xl", "font-bold", "mb-4");
@@ -60,10 +78,16 @@ export const todosPage = () => {
   th4.classList.add("border", "px-4", "py-2");
   th4.textContent = "Owner Id";
 
+  // Columna para editar y eliminar
+  const th5 = document.createElement("th");
+  th5.classList.add("border", "px-4", "py-2");
+  th5.textContent = "Acciones";
+
   tr.appendChild(th1);
   tr.appendChild(th2);
   tr.appendChild(th3);
   tr.appendChild(th4);
+  tr.appendChild(th5); // Agregar la columna de acciones
 
   thead.appendChild(tr);
 
@@ -74,6 +98,7 @@ export const todosPage = () => {
   table.appendChild(tbody);
 
   container.appendChild(btnHome);
+  container.appendChild(btnCreate); // Se añade el boton de crear
   fetch("http://localhost:4000/todos", {
     credentials: "include",
   })
@@ -100,10 +125,42 @@ export const todosPage = () => {
         td4.classList.add("border", "px-4", "py-2");
         td4.textContent = todo.owner;
 
+        // Celdas para las acciones
+        const td5 = document.createElement("td");
+        td5.classList.add("border", "px-4", "py-2");
+
+
+        // Botón para editar
+        const btnEdit = document.createElement("button");
+        btnEdit.classList.add("bg-blue-500", "text-white", "p-1", "rounded", "mr-2", "hover:bg-yellow-600");
+        btnEdit.textContent = "Editar";
+
+        // Botón para eliminar
+        const btnDelete = document.createElement("button");
+        btnDelete.classList.add("bg-red-500", "text-white", "p-1", "rounded", "hover:bg-red-600");
+        btnDelete.textContent = "Eliminar";
+
+         // Evento para el botón Editar
+         btnEdit.addEventListener("click", () => {
+          console.log("Editar:", todo.id);
+          // agregar la lógica para editar el todo
+        });
+
+        // Evento para el botón Borrar
+        btnDelete.addEventListener("click", () => {
+          console.log("Borrar:", todo.id);
+          // agregar la lógica para borrar el todo
+        });
+
+        // Agregar el botón de editar y borrar a la celda de acciones
+        td5.appendChild(btnEdit);
+        td5.appendChild(btnDelete);
+        
         tr.appendChild(td1);
         tr.appendChild(td2);
         tr.appendChild(td3);
         tr.appendChild(td4);
+        tr.appendChild(td5); // Agregar la celda de acciones
         tbody.appendChild(tr);
       });
     });
