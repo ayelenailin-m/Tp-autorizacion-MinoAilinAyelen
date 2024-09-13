@@ -43,6 +43,34 @@ export const todosPage = () => {
   btnCreate.addEventListener("click", () => {
     console.log( "clikearon en crear xd");
     // Logica para crear despues
+    const title = prompt("Ingresa el titulo");
+    const completed = prompt("Ingresa el estado");
+
+    if (title && completed) {
+      fetch("http://localhost:4000/todos", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title,
+          completed,
+        }),
+        credentials: "include",
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data);
+          location.reload(); // Actualiza la página para mostrar el nuevo TODO
+        })
+        .catch((error) => {
+          console.error("Error:", error);
+        });
+    } else {
+      alert("Complete todos los campos");
+    }
+
+
   });
 
   const title = document.createElement("h1");
@@ -104,6 +132,7 @@ export const todosPage = () => {
   })
     .then((response) => response.json())
     .then((data) => {
+      console.log(data);
       data.todos.forEach((todo) => {
         //if (todo.id > 10) return;
 
@@ -141,9 +170,33 @@ export const todosPage = () => {
         btnDelete.textContent = "Eliminar";
 
          // Evento para el botón Editar
-         btnEdit.addEventListener("click", () => {
+        btnEdit.addEventListener("click", () => {
           console.log("Editar:", todo.id);
           // agregar la lógica para editar el todo
+          const newTitle = prompt("Nuevo título del todo:", todo.title);
+          const newCompleted = confirm("¿Está completado?");
+  
+          if (newTitle) {
+              fetch(`http://localhost:4000/todos/${todo.id}`, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+              title: newTitle,
+              completed: newCompleted,
+              }),
+              credentials: "include",
+              })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Todo editado:", data);
+        location.reload(); // Recargar la página para reflejar los cambios
+      })
+      .catch((error) => console.error("Error al editar todo:", error));
+  } else {
+    alert("Debe ingresar un título válido");
+  }
         });
 
         // Evento para el botón Borrar
@@ -155,7 +208,7 @@ export const todosPage = () => {
         // Agregar el botón de editar y borrar a la celda de acciones
         td5.appendChild(btnEdit);
         td5.appendChild(btnDelete);
-        
+
         tr.appendChild(td1);
         tr.appendChild(td2);
         tr.appendChild(td3);

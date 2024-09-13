@@ -9,14 +9,16 @@ export const getAllTodosCtrl = (req, res) => {
 };
 
 export const createTodoCtrl = (req, res) => {
-  const { title, completed, owner } = req.body;
+  const { title, completed } = req.body;
+  const owner = req.user.id;
   const newTodo = createTask(title, completed, owner);
   res.json({ newTodo });
 }
 
 export const updateTodoCtrl = (req, res) => {
   const { id } = req.params;
-  const { title, completed, owner } = req.body;
+  const { title, completed } = req.body;
+  const owner = req.user.id;
   const updatedTodo = updateTask(id, title, completed, owner);
   res.json({ updatedTodo });
 }
