@@ -53,12 +53,20 @@ export const todosPage = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          title,
-          completed,
+          title: title,
+          completed: false, // Por defecto es falso si es una tarea nueva
         }),
         credentials: "include",
       })
-        .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) {
+          return response.json().then((error) => {
+            console.error("Error al crear el todo:", error);
+          });
+        }
+        return response.json();
+      })
+        
         .then((data) => {
           console.log(data);
           location.reload(); // Actualiza la página para mostrar el nuevo TODO

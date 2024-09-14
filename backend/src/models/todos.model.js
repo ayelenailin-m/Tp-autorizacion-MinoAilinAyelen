@@ -1,12 +1,19 @@
 import { database } from "../db/database.js";
 
 export const createTask = (title, completed, owner) => {
-  database.todos.push({
-    id: database.length + 1,
+
+   // Encuentra el último id o establece en 0 si no hay tareas
+  const lastId = database.todos.length > 0 ? Math.max(...database.todos.map(todo => todo.id)) : 0;
+  
+  const newTodo = {
+    id: lastId + 1,
     title,
     completed,
     owner,
-  });
+  }
+
+  database.todos.push(newTodo);
+  return newTodo; // Retorna la tarea creada
 };
 export const updateTask = (id, title, completed, owner) => {
   const todo = database.todos.find((todo) => todo.id === id); // busca la tarea por id

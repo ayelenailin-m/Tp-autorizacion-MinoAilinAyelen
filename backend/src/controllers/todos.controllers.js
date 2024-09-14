@@ -12,6 +12,7 @@ export const createTodoCtrl = (req, res) => {
   const { title, completed } = req.body;
   const owner = req.user.id;
   const newTodo = createTask(title, completed, owner);
+
   res.json({ newTodo });
 }
 
