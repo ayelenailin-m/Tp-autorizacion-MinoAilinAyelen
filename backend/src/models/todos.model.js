@@ -14,8 +14,10 @@ export const updateTask = (id, title, completed, owner) => {
     todo.title = title;
     todo.completed = completed;
     todo.owner = owner;
+    return todo; // Retorna la tarea actualizada
   } else {
     console.log("Tarea no encontrada");
+    return null; // Retorna null si la tarea no se encuentra
   }
 };
 
@@ -23,8 +25,10 @@ export const updateTask = (id, title, completed, owner) => {
 export const deleteTask = (id) => {
   const todoIndex = database.todos.findIndex((todo) => todo.id === id); // Encuentra el índice de la tarea por ID
   if (todoIndex !== -1) {
-    database.todos.splice(todoIndex, 1); // Elimina la tarea del array
+    const deletedTodo = database.todos.splice(todoIndex, 1); // Elimina la tarea del array
+    return deletedTodo[0]; // Retorna la tarea eliminada
   } else {
     console.error("Tarea no encontrada");
+    return null; // Retorna null si la tarea no se encuentra
   }
 };

@@ -163,11 +163,13 @@ export const todosPage = () => {
         const btnEdit = document.createElement("button");
         btnEdit.classList.add("bg-blue-500", "text-white", "p-1", "rounded", "mr-2", "hover:bg-yellow-600");
         btnEdit.textContent = "Editar";
+        btnEdit.dataset.todoId = todo.id; // Almacenar el ID del TODO
 
         // Botón para eliminar
         const btnDelete = document.createElement("button");
         btnDelete.classList.add("bg-red-500", "text-white", "p-1", "rounded", "hover:bg-red-600");
         btnDelete.textContent = "Eliminar";
+        btnDelete.dataset.todoId = todo.id; // Almacenar el ID del TODO
 
          // Evento para el botón Editar
         btnEdit.addEventListener("click", () => {
@@ -188,21 +190,33 @@ export const todosPage = () => {
               }),
               credentials: "include",
               })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Todo editado:", data);
-        location.reload(); // Recargar la página para reflejar los cambios
-      })
-      .catch((error) => console.error("Error al editar todo:", error));
-  } else {
-    alert("Debe ingresar un título válido");
-  }
+              .then((response) => response.json())
+              .then((data) => {
+              console.log("Todo editado:", data);
+              location.reload(); // Recargar la página para reflejar los cambios
+            })
+            .catch((error) => console.error("Error al editar todo:", error));
+          } else {
+          alert("Debe ingresar un título válido");
+          }
         });
 
         // Evento para el botón Borrar
         btnDelete.addEventListener("click", () => {
           console.log("Borrar:", todo.id);
           // agregar la lógica para borrar el todo
+          if (confirm("¿Está seguro de que desea borrar este todo?")) {
+            fetch(`http://localhost:4000/todos/${todo.id}`, {
+              method: "DELETE",
+              credentials: "include",
+            })
+              .then((response) => response.json())
+              .then((data) => {
+                console.log("Todo borrado:", data);
+                location.reload(); // Recargar la página para reflejar los cambios
+              })
+              .catch((error) => console.error("Error al borrar todo:", error));
+          }
         });
 
         // Agregar el botón de editar y borrar a la celda de acciones

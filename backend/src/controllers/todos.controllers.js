@@ -19,12 +19,21 @@ export const updateTodoCtrl = (req, res) => {
   const { id } = req.params;
   const { title, completed } = req.body;
   const owner = req.user.id;
-  const updatedTodo = updateTask(id, title, completed, owner);
-  res.json({ updatedTodo });
+  const updatedTodo = updateTask(parseInt(id), title, completed, owner);
+  if (updatedTodo) {
+    res.json({ updatedTodo });
+  } else {
+    res.status(404).json({ message: "Tarea no encontrada" });
+  }
+  
 }
 
 export const deleteTodoCtrl = (req, res) => {
   const { id } = req.params;
-  const deletedTodo = deleteTask(id);
-  res.json({ deletedTodo });
+  const deletedTodo = deleteTask(parseInt(id));
+  if (deletedTodo) {
+    res.json({ deletedTodo });
+  } else {
+    res.status(404).json({ message: "Tarea no encontrada" });
+  }
 }
