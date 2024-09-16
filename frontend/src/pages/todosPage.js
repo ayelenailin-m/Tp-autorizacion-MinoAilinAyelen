@@ -41,12 +41,31 @@ export const todosPage = () => {
   btnCreate.textContent = "Crear";
 
   btnCreate.addEventListener("click", () => {
-    console.log( "clikearon en crear xd");
+    console.log("clikearon en crear xd");
     // Logica para crear despues
     const title = prompt("Ingresa el titulo");
-    const completed = prompt("Ingresa el estado");
+    const completedInput = prompt("¿Está completado? (Escriba 'Si' o 'No')");
 
-    if (title && completed) {
+    if (title.trim() && completedInput) {
+      //Convertimos el valor de completedInput a booleano
+      let completed = false; // Por defecto es falso si es una tarea nueva
+
+      if (
+        completedInput.toLowerCase() === "Si" ||
+        completedInput.toLowerCase() === "si"
+      ) {
+        completed = true;
+      } else if (
+        completedInput.toLowerCase() === "No" ||
+        completedInput.toLowerCase() === "no"
+      ) {
+        completed = false;
+      } else {
+        alert("Ingresa 'Si' o 'No' para el estado de completado");
+        return; // Salir si el usuario no ingresa un valor válido
+      }
+
+      // Petición para crear el TODO
       fetch("http://localhost:4000/todos", {
         method: "POST",
         headers: {
@@ -54,19 +73,19 @@ export const todosPage = () => {
         },
         body: JSON.stringify({
           title: title,
-          completed: false, // Por defecto es falso si es una tarea nueva
+          completed: completed,
         }),
         credentials: "include",
       })
-      .then((response) => {
-        if (!response.ok) {
-          return response.json().then((error) => {
-            console.error("Error al crear el todo:", error);
-          });
-        }
-        return response.json();
-      })
-        
+        .then((response) => {
+          if (!response.ok) {
+            return response.json().then((error) => {
+              console.error("Error al crear el todo:", error);
+            });
+          }
+          return response.json();
+        })
+
         .then((data) => {
           console.log(data);
           location.reload(); // Actualiza la página para mostrar el nuevo TODO
@@ -77,8 +96,6 @@ export const todosPage = () => {
     } else {
       alert("Complete todos los campos");
     }
-
-
   });
 
   const title = document.createElement("h1");
@@ -135,6 +152,7 @@ export const todosPage = () => {
 
   container.appendChild(btnHome);
   container.appendChild(btnCreate); // Se añade el boton de crear
+
   fetch("http://localhost:4000/todos", {
     credentials: "include",
   })
@@ -166,65 +184,195 @@ export const todosPage = () => {
         const td5 = document.createElement("td");
         td5.classList.add("border", "px-4", "py-2");
 
-
         // Botón para editar
         const btnEdit = document.createElement("button");
-        btnEdit.classList.add("bg-blue-500", "text-white", "p-1", "rounded", "mr-2", "hover:bg-yellow-600");
+        btnEdit.classList.add(
+          "bg-blue-500",
+          "text-white",
+          "p-1",
+          "rounded",
+          "mr-2",
+          "hover:bg-yellow-600"
+        );
         btnEdit.textContent = "Editar";
         btnEdit.dataset.todoId = todo.id; // Almacenar el ID del TODO
 
         // Botón para eliminar
         const btnDelete = document.createElement("button");
-        btnDelete.classList.add("bg-red-500", "text-white", "p-1", "rounded", "hover:bg-red-600");
+        btnDelete.classList.add(
+          "bg-red-500",
+          "text-white",
+          "p-1",
+          "rounded",
+          "hover:bg-red-600"
+        );
         btnDelete.textContent = "Eliminar";
         btnDelete.dataset.todoId = todo.id; // Almacenar el ID del TODO
 
-         // Evento para el botón Editar
+        // Evento para el botón Editar
         btnEdit.addEventListener("click", () => {
           console.log("Editar:", todo.id);
-          // agregar la lógica para editar el todo
+
+          // Pedir al usuario que ingrese los datos nuevos
           const newTitle = prompt("Nuevo título del todo:", todo.title);
-          const newCompleted = confirm("¿Está completado?");
-  
-          if (newTitle) {
-              fetch(`http://localhost:4000/todos/${todo.id}`, {
+          const newCompletedInput = prompt(
+            "¿Está completado? (Escribe 'Si' o 'No')",
+            todo.completed ? "Si" : "No"
+          );
+
+          // Sie le titulo es válido, continua
+          if (newTitle.trim()) {
+            // Convertimos el valor de completed a booleano
+            let newCompleted = false; // Valor predeterminado
+
+            if (
+              newCompletedInput.toLowerCase() === "Si" ||
+              newCompletedInput.toLocaleLowerCase() === "si"
+            ) {
+              newCompleted = true;
+            } else if (
+              newCompletedInput.toLowerCase() === "No" ||
+              newCompletedInput.toLowerCase() === "no"
+            ) {
+              newCompleted = false;
+            } else {
+              alert("Por favor escribir 'Si' o 'No'");
+              return; // Salir si el usuario ingresa un valor invalido
+            }
+
+            fetch(`http://localhost:4000/todos/${todo.id}`, {
               method: "PUT",
               headers: {
                 "Content-Type": "application/json",
               },
               body: JSON.stringify({
-              title: newTitle,
-              completed: newCompleted,
+                title: newTitle,
+                completed: newCompleted,
               }),
               credentials: "include",
-              })
+            })
               .then((response) => response.json())
               .then((data) => {
-              console.log("Todo editado:", data);
-              location.reload(); // Recargar la página para reflejar los cambios
-            })
-            .catch((error) => console.error("Error al editar todo:", error));
+                console.log("Todo editado:", data);
+                location.reload(); // Recargar la página para reflejar los cambios
+              })
+              .catch((error) => console.error("Error al editar todo:", error));
           } else {
-          alert("Debe ingresar un título válido");
+            alert("Debe ingresar un título válido");
           }
         });
 
         // Evento para el botón Borrar
         btnDelete.addEventListener("click", () => {
           console.log("Borrar:", todo.id);
-          // agregar la lógica para borrar el todo
-          if (confirm("¿Está seguro de que desea borrar este todo?")) {
+
+          // Crear el contenedor del modal si no existe
+          let modalContainer = document.getElementById("modal-container");
+          if (!modalContainer) {
+            modalContainer = document.createElement("div");
+            modalContainer.id = "modal-container";
+            document.body.appendChild(modalContainer);
+          }
+
+          // Asegurarse de que el contenedor esté vacío antes de agregar contenido
+          modalContainer.innerHTML = "";
+
+          // Agregar clases de estilo al modal
+          modalContainer.classList.add(
+            "flex",
+            "justify-center",
+            "items-center",
+            "fixed",
+            "top-0",
+            "left-0",
+            "z-50",
+            "w-full",
+            "h-screen",
+            "bg-black",
+            "bg-opacity-50"
+          );
+
+          // Crear el contenido del modal
+          const modalContent = document.createElement("div");
+          modalContent.classList.add(
+            "bg-white",
+            "p-8",
+            "rounded",
+            "shadow-md",
+            "w-1/3"
+          );
+
+          // Texto para elegir el estado
+          const labelDelete = document.createElement("p");
+          labelDelete.textContent = "¿Seguro que quieres borrar esta tarea?";
+          labelDelete.classList.add("mb-2", "font-semibold");
+
+          // Botón de confirmación
+          const btnConfirm = document.createElement("button");
+          btnConfirm.classList.add(
+            "bg-red-500",
+            "text-white",
+            "p-2",
+            "rounded",
+            "mr-2",
+            "hover:bg-red-600"
+          );
+          btnConfirm.textContent = "Confirmar";
+          btnConfirm.addEventListener("click", () => {
+            // Lógica para borrar la tarea
             fetch(`http://localhost:4000/todos/${todo.id}`, {
               method: "DELETE",
               credentials: "include",
             })
-              .then((response) => response.json())
+              .then((response) => {
+                if (!response.ok) {
+                  throw new Error("Error al borrar el todo");
+                }
+                return response.json();
+              })
               .then((data) => {
                 console.log("Todo borrado:", data);
                 location.reload(); // Recargar la página para reflejar los cambios
               })
               .catch((error) => console.error("Error al borrar todo:", error));
-          }
+
+            // Eliminar el modal después de confirmar
+            document.body.removeChild(modalContainer);
+          });
+
+          // Botón de cancelar
+          const btnCancel = document.createElement("button");
+          btnCancel.classList.add(
+            "bg-blue-500",
+            "text-white",
+            "p-2",
+            "rounded",
+            "hover:bg-blue-600"
+          );
+          btnCancel.textContent = "Cancelar";
+          btnCancel.addEventListener("click", () => {
+            // Cerrar el modal sin eliminar el todo
+            document.body.removeChild(modalContainer);
+          });
+
+          // Añadir los botones al modal
+          modalContent.appendChild(labelDelete);
+          modalContent.appendChild(btnConfirm);
+          modalContent.appendChild(btnCancel);
+          modalContainer.appendChild(modalContent);
+
+          // if (confirm("¿Está seguro de que desea borrar este todo?")) {
+          //   fetch(`http://localhost:4000/todos/${todo.id}`, {
+          //     method: "DELETE",
+          //     credentials: "include",
+          //   })
+          //     .then((response) => response.json())
+          //     .then((data) => {
+          //       console.log("Todo borrado:", data);
+          //       location.reload(); // Recargar la página para reflejar los cambios
+          //     })
+          //     .catch((error) => console.error("Error al borrar todo:", error));
+          // }
         });
 
         // Agregar el botón de editar y borrar a la celda de acciones
